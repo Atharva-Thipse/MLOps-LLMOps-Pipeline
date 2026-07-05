@@ -39,7 +39,7 @@ inference.ipynb
 
 ### Output
 The pipeline produces:
-  * Feast Registry
-  * SQLite Online Store
+  * feature_repo: Feast Registry
+  * online_store.db: SQLite Online Store
   * Trained Decision Tree model
   * Predictions generated using online features fetched from Feast
