@@ -1,5 +1,4 @@
 feast
-dvc
 pytest
 pandas
 numpy

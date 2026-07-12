@@ -33,6 +33,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
+          pip install "dvc[gs]"
 
       - name: Setup DVC
         uses: iterative/setup-dvc@v1
