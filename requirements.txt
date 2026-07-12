@@ -1,0 +1,10 @@
+feast
+dvc[gcs]
+pytest
+pandas
+numpy
+scikit-learn
+joblib
+google-cloud-storage
+cml
+pyarrow
