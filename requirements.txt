@@ -1,0 +1,8 @@
+feast
+pytest
+pandas
+numpy
+scikit-learn
+joblib
+google-cloud-storage
+pyarrow
