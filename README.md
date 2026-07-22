@@ -61,11 +61,17 @@ The workflow performs the following steps:
 6. Generate a CML report
 7. Publish the report as a Pull Request comment
 
+### MLflow
+mlflow.db:
+* Stores experiment metadata.
+mlruns/:
+* Stores trained models.
+* Maintains the Model Registry.
+
 ### Output
 The pipeline produces:
-* Version-controlled datasets
-* Version-controlled trained models
-* Feast registry and online store
-* Pytest execution reports
-* GitHub Actions workflow logs
-* CML pull request reports
+* Integrated MLflow into an end-to-end ML pipeline.
+* Performed hyperparameter tuning across multiple training runs.
+* Logged parameters, metrics, and model artifacts using MLflow.
+* Compared experiments through the MLflow Tracking UI.
+* Managed models using the MLflow Model Registry.
