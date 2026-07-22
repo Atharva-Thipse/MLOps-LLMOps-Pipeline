@@ -6,3 +6,4 @@ scikit-learn
 joblib
 google-cloud-storage
 pyarrow
+mlflow
