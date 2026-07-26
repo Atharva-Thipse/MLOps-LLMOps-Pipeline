@@ -1,4 +1,4 @@
-# 21F3002319_MLOPS_WEEKLY_ASSIGNMENT Week 5
+# 21F3002319_MLOPS_WEEKLY_ASSIGNMENT Week 6
 data folder - contains iris.csv.
 
 prepare_data.ipynb - splits the dataset into train and test datasets.
