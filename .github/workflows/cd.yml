@@ -1,0 +1,63 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - week_6
+
+jobs:
+
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - uses: google-github-actions/setup-gcloud@v2
+
+    - run: |
+        gcloud auth configure-docker \
+        ${{ secrets.GAR_LOCATION }}-docker.pkg.dev
+
+    - run: |
+        docker build \
+        -t \
+        ${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.GAR_REPOSITORY }}/iris-api:${{ github.sha }} \
+        ./api
+
+    - run: |
+        docker push \
+        ${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.GAR_REPOSITORY }}/iris-api:${{ github.sha }}
+
+    - uses: google-github-actions/get-gke-credentials@v2
+      with:
+        cluster_name: ${{ secrets.GKE_CLUSTER }}
+        location: ${{ secrets.GKE_ZONE }}
+
+    - run: |
+
+        kubectl create deployment iris-api \
+          --image=${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.GAR_REPOSITORY }}/iris-api:${{ github.sha }} \
+          --dry-run=client -o yaml \
+          | kubectl apply -f -
+
+    - run: |
+
+        kubectl expose deployment iris-api \
+          --type=LoadBalancer \
+          --port=80 \
+          --target-port=8080 \
+          --dry-run=client -o yaml \
+          | kubectl apply -f -
+
+    - run: kubectl get all
