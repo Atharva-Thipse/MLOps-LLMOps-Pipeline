@@ -6,7 +6,7 @@ from pydantic import BaseModel
 app = FastAPI()
 
 model = mlflow.pyfunc.load_model(
-    "models:/IrisClassifier/latest"
+    "mlruns/1/models/m-39d3297caad94e22a2f4ca42d973501c/artifacts"
 )
 
 class IrisRequest(BaseModel):
