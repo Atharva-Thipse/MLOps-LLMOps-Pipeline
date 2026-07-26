@@ -7,5 +7,3 @@ joblib
 google-cloud-storage
 pyarrow
 mlflow
-fastapi
-uvicorn
