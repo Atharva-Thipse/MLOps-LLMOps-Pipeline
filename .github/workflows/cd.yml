@@ -33,7 +33,7 @@ jobs:
         docker build \
         -t \
         ${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.GAR_REPOSITORY }}/iris-api:${{ github.sha }} \
-        ./api
+        .
 
     - run: |
         docker push \
