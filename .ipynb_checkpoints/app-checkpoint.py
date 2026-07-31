@@ -1,12 +1,9 @@
 from fastapi import FastAPI
 from fastapi import Request
 from fastapi import HTTPException
-
 from pydantic import BaseModel
-
 import pandas as pd
 import time
-
 from model import model
 from middleware import logging_middleware
 from logging_config import logger
@@ -35,37 +32,34 @@ class IrisRequest(BaseModel):
 
 @app.get("/")
 def root():
+    return {"message": "IRIS Prediction API"}
 
-    return {
-        "message": "IRIS Prediction API"
-    }
+app_state = {"is_ready": False, "is_alive": True}
 
+@app.on_event("startup")
+async def startup_event():
+    import time
+    time.sleep(2)  # simulate work, normally this would be model loading
+    app_state["is_ready"] = True
 
-@app.get("/live")
-def live():
+@app.get("/live", tags=["Probe"])
+async def live():
+    if app_state["is_alive"]:
+        return {"status": "alive"}
+    return Response(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    return {
-        "status": "alive"
-    }
-
-
-@app.get("/ready")
-def ready():
-
-    return {
-        "status": "ready"
-    }
-
+@app.get("/ready", tags=["Probe"])
+async def ready():
+    if app_state["is_ready"]:
+        return {"status": "ready"}
+    return Response(status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
 
 @app.post("/predict")
 def predict(req: IrisRequest, request: Request):
-
     start = time.time()
 
     with tracer.start_as_current_span("prediction") as span:
-
         try:
-
             X = pd.DataFrame([{
                 "sepal_length": req.sepal_length,
                 "sepal_width": req.sepal_width,
@@ -74,21 +68,10 @@ def predict(req: IrisRequest, request: Request):
             }])
 
             prediction = model.predict(X)
+            latency = round((time.time() - start) * 1000, 2)
 
-            latency = round(
-                (time.time() - start) * 1000,
-                2
-            )
-
-            span.set_attribute(
-                "latency_ms",
-                latency
-            )
-
-            span.set_attribute(
-                "prediction",
-                int(prediction[0])
-            )
+            span.set_attribute("latency_ms", latency)
+            span.set_attribute("prediction", int(prediction[0]))
 
             logger.info(
                 f"Prediction={prediction[0]} "
@@ -96,15 +79,8 @@ def predict(req: IrisRequest, request: Request):
                 f"Client={request.client.host}"
             )
 
-            return {
-                "prediction": int(prediction[0])
-            }
+            return {"prediction": int(prediction[0])}
 
         except Exception as e:
-
             logger.exception(str(e))
-
-            raise HTTPException(
-                status_code=500,
-                detail="Prediction failed"
-            )
+            raise HTTPException(status_code=500, detail="Prediction failed")
