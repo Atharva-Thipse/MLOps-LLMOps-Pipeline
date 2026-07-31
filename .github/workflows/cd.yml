@@ -3,7 +3,7 @@ name: CD
 on:
   push:
     branches:
-      - week_6
+      - week_7
 
 jobs:
 
@@ -44,20 +44,45 @@ jobs:
         cluster_name: ${{ secrets.GKE_CLUSTER }}
         location: ${{ secrets.GKE_ZONE }}
 
-    - run: |
+    - name: Update Deployment Image
+      run: |
+        sed -i "s|IMAGE_TAG|${{ github.sha }}|g" k8s/deployment.yaml
 
-        kubectl create deployment iris-api \
-          --image=${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.GAR_REPOSITORY }}/iris-api:${{ github.sha }} \
-          --dry-run=client -o yaml \
-          | kubectl apply -f -
-
-    - run: |
-
-        kubectl expose deployment iris-api \
-          --type=LoadBalancer \
-          --port=80 \
-          --target-port=8080 \
-          --dry-run=client -o yaml \
-          | kubectl apply -f -
+    - name: Deploy Kubernetes Resources
+      run: |
+        kubectl apply -f k8s/
 
     - run: kubectl get all
+
+    - name: Wait for deployment rollout
+      run: |
+        kubectl rollout status deployment/iris-api --timeout=300s
+
+    - name: Wait for External IP
+      run: |
+        for i in {1..30}; do
+          IP=$(kubectl get svc iris-api \
+            -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+
+          if [ -n "$IP" ]; then
+            echo "API_IP=$IP" >> $GITHUB_ENV
+            echo "External IP: $IP"
+            exit 0
+          fi
+
+          echo "Waiting for LoadBalancer IP..."
+          sleep 10
+        done
+
+        echo "Timed out waiting for External IP"
+        exit 1
+
+    - name: Install wrk
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wrk
+
+    - name: Run Stress Test
+      run: |
+        wrk -t4 -c1000 -d30s http://$API_IP/predict
+

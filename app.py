@@ -1,16 +1,32 @@
-import mlflow.pyfunc
-import pandas as pd
 from fastapi import FastAPI
+from fastapi import Request
+from fastapi import HTTPException
+
 from pydantic import BaseModel
 
-app = FastAPI()
+import pandas as pd
+import time
 
-# Load the Model
-model = mlflow.pyfunc.load_model(
-    "mlruns/1/models/m-39d3297caad94e22a2f4ca42d973501c/artifacts"
+from model import model
+from middleware import logging_middleware
+from logging_config import logger
+from tracing import tracer
+
+from prometheus_fastapi_instrumentator import Instrumentator
+
+
+app = FastAPI(
+    title="IRIS Prediction API",
+    version="2.0"
 )
 
+Instrumentator().instrument(app).expose(app)
+
+app.middleware("http")(logging_middleware)
+
+
 class IrisRequest(BaseModel):
+
     sepal_length: float
     sepal_width: float
     petal_length: float
@@ -19,21 +35,76 @@ class IrisRequest(BaseModel):
 
 @app.get("/")
 def root():
-    return {"message": "IRIS Prediction API"}
+
+    return {
+        "message": "IRIS Prediction API"
+    }
+
+
+@app.get("/live")
+def live():
+
+    return {
+        "status": "alive"
+    }
+
+
+@app.get("/ready")
+def ready():
+
+    return {
+        "status": "ready"
+    }
 
 
 @app.post("/predict")
-def predict(req: IrisRequest):
+def predict(req: IrisRequest, request: Request):
 
-    X = pd.DataFrame([{
-        "sepal_length": req.sepal_length,
-        "sepal_width": req.sepal_width,
-        "petal_length": req.petal_length,
-        "petal_width": req.petal_width
-    }])
+    start = time.time()
 
-    prediction = model.predict(X)
+    with tracer.start_as_current_span("prediction") as span:
 
-    return {
-        "prediction": prediction[0]
-    }
+        try:
+
+            X = pd.DataFrame([{
+                "sepal_length": req.sepal_length,
+                "sepal_width": req.sepal_width,
+                "petal_length": req.petal_length,
+                "petal_width": req.petal_width
+            }])
+
+            prediction = model.predict(X)
+
+            latency = round(
+                (time.time() - start) * 1000,
+                2
+            )
+
+            span.set_attribute(
+                "latency_ms",
+                latency
+            )
+
+            span.set_attribute(
+                "prediction",
+                int(prediction[0])
+            )
+
+            logger.info(
+                f"Prediction={prediction[0]} "
+                f"Latency={latency}ms "
+                f"Client={request.client.host}"
+            )
+
+            return {
+                "prediction": int(prediction[0])
+            }
+
+        except Exception as e:
+
+            logger.exception(str(e))
+
+            raise HTTPException(
+                status_code=500,
+                detail="Prediction failed"
+            )

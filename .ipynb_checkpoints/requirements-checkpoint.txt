@@ -7,3 +7,11 @@ joblib
 google-cloud-storage
 pyarrow
 mlflow
+fastapi
+uvicorn
+pydantic
+opentelemetry-exporter-gcp-trace
+opentelemetry-api
+opentelemetry-sdk
+google-cloud-logging
+prometheus-fastapi-instrumentator
