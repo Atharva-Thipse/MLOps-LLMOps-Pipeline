@@ -2,7 +2,6 @@ from fastapi import FastAPI, Request, HTTPException, Response, status
 from pydantic import BaseModel
 import pandas as pd
 import time
-from model import model
 from middleware import logging_middleware
 from logging_config import logger
 from tracing import tracer
