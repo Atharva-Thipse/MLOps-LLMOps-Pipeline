@@ -19,6 +19,7 @@ spec:
         app: iris-api
 
     spec:
+      serviceAccountName: telemetry-access
       containers:
         - name: iris-api
 
