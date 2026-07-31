@@ -1,6 +1,4 @@
-from fastapi import FastAPI
-from fastapi import Request
-from fastapi import HTTPException
+from fastapi import FastAPI, Request, HTTPException, Response, status
 from pydantic import BaseModel
 import pandas as pd
 import time
@@ -8,39 +6,46 @@ from model import model
 from middleware import logging_middleware
 from logging_config import logger
 from tracing import tracer
-
+import mlflow.pyfunc
 from prometheus_fastapi_instrumentator import Instrumentator
-
 
 app = FastAPI(
     title="IRIS Prediction API",
     version="2.0"
 )
 
-Instrumentator().instrument(app).expose(app)
+Instrumentator().instrument(app).expose(app) # Prometheus Metrics
 
-app.middleware("http")(logging_middleware)
+FastAPIInstrumentor.instrument_app(app) # OpenTelemetry
 
+app.middleware("http")(logging_middleware) # Logging Middleware
+
+app_state = {"is_ready": False, "is_alive": True}
+model = None
 
 class IrisRequest(BaseModel):
-
     sepal_length: float
     sepal_width: float
     petal_length: float
     petal_width: float
 
+@app.on_event("startup")
+async def startup_event():
+    global model
+    logger.info("Loading MLflow model...")
+    try:
+        model = mlflow.pyfunc.load_model("mlruns/1/models/m-39d3297caad94e22a2f4ca42d973501c/artifacts")
+        app_state["is_ready"] = True
+        logger.info("Model loaded successfully.")
 
+    except Exception as e:
+        logger.exception(f"Model loading failed: {e}")
+        app_state["is_alive"] = False
+        raise
+        
 @app.get("/")
 def root():
     return {"message": "IRIS Prediction API"}
-
-app_state = {"is_ready": False, "is_alive": True}
-
-@app.on_event("startup")
-async def startup_event():
-    import time
-    time.sleep(2)  # simulate work, normally this would be model loading
-    app_state["is_ready"] = True
 
 @app.get("/live", tags=["Probe"])
 async def live():
@@ -56,8 +61,13 @@ async def ready():
 
 @app.post("/predict")
 def predict(req: IrisRequest, request: Request):
-    start = time.time()
+    if model is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Model is still loading."
+        )
 
+    start = time.time()
     with tracer.start_as_current_span("prediction") as span:
         try:
             X = pd.DataFrame([{
@@ -72,6 +82,7 @@ def predict(req: IrisRequest, request: Request):
 
             span.set_attribute("latency_ms", latency)
             span.set_attribute("prediction", int(prediction[0]))
+            span.set_attribute("client.ip", request.client.host)
 
             logger.info(
                 f"Prediction={prediction[0]} "
@@ -82,5 +93,6 @@ def predict(req: IrisRequest, request: Request):
             return {"prediction": int(prediction[0])}
 
         except Exception as e:
+            span.record_exception(e)
             logger.exception(str(e))
             raise HTTPException(status_code=500, detail="Prediction failed")

@@ -3,12 +3,10 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.exporter.cloud_trace import CloudTraceSpanExporter
 
-trace.set_tracer_provider(TracerProvider())
+provider = TracerProvider()
 
-processor = BatchSpanProcessor(
-    CloudTraceSpanExporter()
-)
+processor = BatchSpanProcessor(CloudTraceSpanExporter())
+provider.add_span_processor(processor)
 
-trace.get_tracer_provider().add_span_processor(processor)
-
-tracer = trace.get_tracer("iris-api")
+trace.set_tracer_provider(provider)
+tracer = trace.get_tracer(__name__)
