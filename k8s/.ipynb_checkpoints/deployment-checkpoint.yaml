@@ -22,7 +22,7 @@ spec:
       containers:
         - name: iris-api
 
-          image: us-central1-docker.pkg.dev/mlops-week-1-499905/iris-repo/iris-api:latest
+          image: us-central1-docker.pkg.dev/mlops-week-1-499905/iris-repo/iris-api:IMAGE_TAG
           imagePullPolicy: Always
 
           ports:
