@@ -81,7 +81,7 @@ def predict(req: IrisRequest, request: Request):
             latency = round((time.time() - start) * 1000, 2)
 
             span.set_attribute("latency_ms", latency)
-            span.set_attribute("prediction", int(prediction[0]))
+            span.set_attribute("prediction", str(prediction[0]))
             span.set_attribute("client.ip", request.client.host)
 
             logger.info(
@@ -90,7 +90,7 @@ def predict(req: IrisRequest, request: Request):
                 f"Client={request.client.host}"
             )
 
-            return {"prediction": int(prediction[0])}
+            return {"prediction": str(prediction[0])}
 
         except Exception as e:
             span.record_exception(e)
