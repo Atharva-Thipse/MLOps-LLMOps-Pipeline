@@ -84,5 +84,5 @@ jobs:
 
     - name: Run Stress Test
       run: |
-        wrk -t4 -c1000 -d30s http://$API_IP/predict
+        wrk -t4 -c1000 -d30s -s scripts/post.lua http://$API_IP/predict
 
