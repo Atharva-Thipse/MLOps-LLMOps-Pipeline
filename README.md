@@ -1,11 +1,27 @@
-# 21F3002319_MLOPS_WEEKLY_ASSIGNMENT Week 6
-data folder - contains iris.csv.
+# 21F3002319_MLOPS_WEEKLY_ASSIGNMENT Week 8
+data folder - contains iris.csv, train/test datasets, and poisoned datasets.
+
+app.py - FastAPI application exposing the IRIS prediction API, health probes, Prometheus metrics, and prediction endpoint.
 
 prepare_data.ipynb - splits the dataset into train and test datasets.
 
 train.ipynb - trains decision tree model on train dataset.
 
+middleware.py - HTTP middleware for request/response logging.
+
+logging_config.py - Configures application logging for Google Cloud Logging.
+
 inference.ipynb - evaluates the model on test dataset.
+
+tracing.py - Configures OpenTelemetry tracing and Google Cloud Trace integration.
+
+Dockerfile - Builds the container image for deploying the FastAPI application to GKE.
+
+scripts/post.lua - Lua script used by wrk to generate POST requests to the /predict endpoint for high-concurrency stress testing.
+
+scripts/poison_data.py - Generates poisoned IRIS training datasets at different corruption levels (5%, 10%, and 50%) while maintaining a clean baseline.
+
+scripts/train_mlflow.py - Trains models on the clean and poisoned datasets, calculates accuracy, precision, recall, and F1 score, and logs the experiments to MLflow.
 
 ### Feast Components
 #### Entity
@@ -20,22 +36,6 @@ Features registered:
   * sepal_width
   * petal_length
   * petal_width
-
-### Running the Project
-Install dependencies
-`pip install feast pandas scikit-learn pyarrow`
-
-Apply Feast definitions
-`cd feature_repo`
-`feast apply`
-
-Materialize features
-`feast materialize 2020-01-01T00:00:00 <current_timestamp>`
-
-Run the notebooks
-prepare_data.ipynb
-train.ipynb
-inference.ipynb
 
 ### Execute unit tests
 `pytest`
@@ -61,12 +61,17 @@ The workflow performs the following steps:
 6. Generate a CML report
 7. Publish the report as a Pull Request comment
 
-### MLflow
-mlflow.db:
-* Stores experiment metadata.
-mlruns/:
-* Stores trained models.
-* Maintains the Model Registry.
+### Week 8 MLflow
+
+The poisoning experiments are tracked in MLflow under the iris-week8-data-poisoning experiment.
+
+The following metrics are recorded:
+* Accuracy
+* Precision
+* Recall
+* F1 score
+
+This allows the impact of increasing data poisoning severity to be compared across experiments.
 
 ### k8s
 * deployment.yaml - Defines Docker image, replicas, resource requests, CPU limits, etc.
@@ -74,9 +79,12 @@ mlruns/:
 * hpa.yaml - Defines the Horizontal Pod Autoscaler. It specifies min replicas, max replicas, and CPU utilization threshold.
 
 ### Output
-The pipeline produces:
-* Integrated MLflow into an end-to-end ML pipeline.
-* Performed hyperparameter tuning across multiple training runs.
-* Logged parameters, metrics, and model artifacts using MLflow.
-* Compared experiments through the MLflow Tracking UI.
-* Managed models using the MLflow Model Registry.
+#### Poisoned Datasets
+The Week 8 experiment generates:
+
+* train_0pct_poisoned.csv - Clean training dataset.
+* train_5pct_poisoned.csv - 5% poisoned training dataset.
+* train_10pct_poisoned.csv - 10% poisoned training dataset.
+* train_50pct_poisoned.csv - 50% poisoned training dataset.
+
+The poisoned samples contain randomly generated feature values and randomly assigned class labels. The clean test dataset is kept unchanged so that all models are evaluated against the same baseline.
