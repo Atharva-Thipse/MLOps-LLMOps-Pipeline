@@ -31,7 +31,7 @@ POISONING_LEVELS = [0, 5, 10, 50]
 
 NUMBER_OF_REPETITIONS = 10
 
-RANDOM_SEEDS = [42]
+RANDOM_SEEDS = 42
 
 FEATURE_COLUMNS = [
     "sepal_length",
@@ -369,7 +369,7 @@ def main():
     results = []
 
     # --------------------------------------------------------
-    # Run all poisoning levels
+    # Run one experiment for each poisoning level
     # --------------------------------------------------------
 
     for poisoning_level in POISONING_LEVELS:
@@ -381,7 +381,7 @@ def main():
         print("\n" + "-" * 70)
 
         print(
-            f"Running {poisoning_level}% poisoning experiments"
+            f"Running {poisoning_level}% poisoning experiment"
         )
 
         print(
@@ -394,37 +394,23 @@ def main():
         )
 
         # ----------------------------------------------------
-        # Repeat experiment
+        # Run experiment with fixed random seed
         # ----------------------------------------------------
 
-        for repetition in range(
-            NUMBER_OF_REPETITIONS
-        ):
+        result = run_experiment(
+            train_df=train_df,
+            test_df=test_df,
+            poisoning_level=poisoning_level,
+            seed=42
+        )
 
-            seed = RANDOM_SEEDS[
-                repetition
-            ]
-
-            result = run_experiment(
-                train_df=train_df,
-                test_df=test_df,
-                poisoning_level=poisoning_level,
-                seed=seed
-            )
-
-            result["repetition"] = (
-                repetition + 1
-            )
-
-            results.append(result)
+        results.append(result)
 
     # --------------------------------------------------------
     # Convert results to DataFrame
     # --------------------------------------------------------
 
-    results_df = pd.DataFrame(
-        results
-    )
+    results_df = pd.DataFrame(results)
 
     detailed_results_file = os.path.join(
         DATA_DIR,
@@ -437,24 +423,19 @@ def main():
     )
 
     # --------------------------------------------------------
-    # Calculate aggregate statistics
+    # Create summary
+    # Since there is only one run per poisoning level,
+    # the mean is simply the metric from that run.
     # --------------------------------------------------------
 
     summary_df = (
         results_df
         .groupby("poisoning_level")
         .agg(
-            accuracy_mean=("accuracy", "mean"),
-            accuracy_std=("accuracy", "std"),
-
-            precision_mean=("precision", "mean"),
-            precision_std=("precision", "std"),
-
-            recall_mean=("recall", "mean"),
-            recall_std=("recall", "std"),
-
-            f1_mean=("f1", "mean"),
-            f1_std=("f1", "std")
+            accuracy=("accuracy", "mean"),
+            precision=("precision", "mean"),
+            recall=("recall", "mean"),
+            f1=("f1", "mean")
         )
         .reset_index()
     )
@@ -501,7 +482,6 @@ def main():
     print("\n" + "=" * 70)
     print("Experiment completed successfully.")
     print("=" * 70)
-
 
 if __name__ == "__main__":
     main()

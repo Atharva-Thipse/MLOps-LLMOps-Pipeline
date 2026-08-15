@@ -16,3 +16,5 @@ opentelemetry-sdk
 google-cloud-logging
 prometheus-fastapi-instrumentator
 opentelemetry-instrumentation-fastapi
+fairlearn
+shap
