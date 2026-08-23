@@ -1,0 +1,91 @@
+sample_id,input_text,expected_output,raw_prediction,predicted_species,format_compliant
+1,"sepal_length: 4.4, sepal_width: 3.0, petal_length: 1.3, petal_width: 0.2",setosa,"setosa
+Jackie
+Jackie",setosa,False
+2,"sepal_length: 6.1, sepal_width: 3.0, petal_length: 4.9, petal_width: 1.8",virginica,"setosa
+Jackie
+Jackie",setosa,False
+3,"sepal_length: 4.9, sepal_width: 2.4, petal_length: 3.3, petal_width: 1.0",versicolor,"setosa
+Jackie
+setosa",setosa,False
+4,"sepal_length: 5.0, sepal_width: 2.3, petal_length: 3.3, petal_width: 1.0",versicolor,"setosa
+Jackie
+setosa",setosa,False
+5,"sepal_length: 4.4, sepal_width: 3.2, petal_length: 1.3, petal_width: 0.2",setosa,"setosa
+Jackie
+Jackie",setosa,False
+6,"sepal_length: 6.3, sepal_width: 3.3, petal_length: 4.7, petal_width: 1.6",versicolor,"setosa
+Jackie
+Jackie",setosa,False
+7,"sepal_length: 4.6, sepal_width: 3.6, petal_length: 1.0, petal_width: 0.2",setosa,"setosa
+Jackie
+Jackie",setosa,False
+8,"sepal_length: 5.4, sepal_width: 3.4, petal_length: 1.7, petal_width: 0.2",setosa,"setosa
+Jackie
+Jackie",setosa,False
+9,"sepal_length: 6.5, sepal_width: 3.0, petal_length: 5.2, petal_width: 2.0",virginica,"setosa
+Jackie
+setosa",setosa,False
+10,"sepal_length: 5.4, sepal_width: 3.0, petal_length: 4.5, petal_width: 1.5",versicolor,"setosa
+Jackie
+setosa",setosa,False
+11,"sepal_length: 7.3, sepal_width: 2.9, petal_length: 6.3, petal_width: 1.8",virginica,"setosa
+Jackie
+Jackie",setosa,False
+12,"sepal_length: 6.9, sepal_width: 3.1, petal_length: 5.1, petal_width: 2.3",virginica,"setosa
+Jackie
+setosa",setosa,False
+13,"sepal_length: 6.5, sepal_width: 3.0, petal_length: 5.8, petal_width: 2.2",virginica,"setosa
+Jackie
+setosa",setosa,False
+14,"sepal_length: 6.4, sepal_width: 3.2, petal_length: 4.5, petal_width: 1.5",versicolor,"setosa
+Jackie
+Jackie",setosa,False
+15,"sepal_length: 5.0, sepal_width: 3.4, petal_length: 1.5, petal_width: 0.2",setosa,"setosa
+Jackie
+Jackie",setosa,False
+16,"sepal_length: 5.0, sepal_width: 3.3, petal_length: 1.4, petal_width: 0.2",setosa,"setosa
+Jackie
+Jackie",setosa,False
+17,"sepal_length: 5.8, sepal_width: 4.0, petal_length: 1.2, petal_width: 0.2",setosa,"setosa
+Jackie
+setosa",setosa,False
+18,"sepal_length: 5.6, sepal_width: 2.5, petal_length: 3.9, petal_width: 1.1",versicolor,"setosa
+Jackie
+Jackie",setosa,False
+19,"sepal_length: 6.1, sepal_width: 2.9, petal_length: 4.7, petal_width: 1.4",versicolor,"setosa
+Jackie
+Jackie",setosa,False
+20,"sepal_length: 6.0, sepal_width: 3.0, petal_length: 4.8, petal_width: 1.8",virginica,"setosa
+Jackie
+Jackie",setosa,False
+21,"sepal_length: 5.4, sepal_width: 3.7, petal_length: 1.5, petal_width: 0.2",setosa,"setosa
+Jackie
+setosa",setosa,False
+22,"sepal_length: 6.7, sepal_width: 3.1, petal_length: 5.6, petal_width: 2.4",virginica,"setosa
+Jackie
+setosa",setosa,False
+23,"sepal_length: 6.6, sepal_width: 2.9, petal_length: 4.6, petal_width: 1.3",versicolor,"setosa
+Jackie
+Jackie",setosa,False
+24,"sepal_length: 6.1, sepal_width: 2.6, petal_length: 5.6, petal_width: 1.4",virginica,"setosa
+Jackie
+Jackie",setosa,False
+25,"sepal_length: 6.4, sepal_width: 2.8, petal_length: 5.6, petal_width: 2.2",virginica,"setosa
+Jackie
+setosa",setosa,False
+26,"sepal_length: 6.7, sepal_width: 3.0, petal_length: 5.0, petal_width: 1.7",versicolor,"setosa
+Jackie
+Jackie",setosa,False
+27,"sepal_length: 6.6, sepal_width: 3.0, petal_length: 4.4, petal_width: 1.4",versicolor,"setosa
+Jackie
+Jackie",setosa,False
+28,"sepal_length: 5.7, sepal_width: 3.8, petal_length: 1.7, petal_width: 0.3",setosa,"setosa
+Jackie
+Jackie",setosa,False
+29,"sepal_length: 6.5, sepal_width: 3.0, petal_length: 5.5, petal_width: 1.8",virginica,"setosa
+Jackie
+Jackie",setosa,False
+30,"sepal_length: 5.2, sepal_width: 3.4, petal_length: 1.4, petal_width: 0.2",setosa,"setosa
+Jackie
+setosa",setosa,False

@@ -1,0 +1,7 @@
+model,species,precision,recall
+v1,setosa,0.3333333333333333,1.0
+v1,versicolor,0.0,0.0
+v1,virginica,0.0,0.0
+v2,setosa,0.0,0.0
+v2,versicolor,0.3333333333333333,1.0
+v2,virginica,0.0,0.0
