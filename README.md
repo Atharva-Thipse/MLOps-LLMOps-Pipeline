@@ -1,4 +1,4 @@
-# 21F3002319_MLOPS_WEEKLY_ASSIGNMENT Week 10
+# 21F3002319_MLOPS_WEEKLY_ASSIGNMENT Week 11
 data folder - contains iris.csv, train/test datasets, and poisoned datasets.
 
 app.py - FastAPI application exposing the IRIS prediction API, health probes, Prometheus metrics, and prediction endpoint.
