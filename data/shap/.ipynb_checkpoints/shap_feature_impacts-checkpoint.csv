@@ -1,0 +1,13 @@
+feature,mean_shap,direction,class
+sepal_length,0.0,neutral,setosa
+sepal_width,0.0,neutral,setosa
+petal_width,0.0,neutral,setosa
+petal_length,3.515706244646329e-16,toward,setosa
+sepal_length,0.0,neutral,versicolor
+sepal_width,-0.005634782608695654,away,versicolor
+petal_length,-0.06264679280729997,away,versicolor
+petal_width,0.06828157541599554,toward,versicolor
+sepal_length,0.0,neutral,virginica
+sepal_width,0.005634782608695656,toward,virginica
+petal_length,0.06264679280729987,toward,virginica
+petal_width,-0.06828157541599564,away,virginica

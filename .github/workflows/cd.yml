@@ -1,0 +1,88 @@
+name: CD
+
+on:
+  push:
+    branches:
+      - week_7
+
+jobs:
+
+  deploy:
+
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+
+    - uses: actions/checkout@v4
+
+    - uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+    - uses: google-github-actions/setup-gcloud@v2
+
+    - run: |
+        gcloud auth configure-docker \
+        ${{ secrets.GAR_LOCATION }}-docker.pkg.dev
+
+    - run: |
+        docker build \
+        -t \
+        ${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.GAR_REPOSITORY }}/iris-api:${{ github.sha }} \
+        .
+
+    - run: |
+        docker push \
+        ${{ secrets.GAR_LOCATION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.GAR_REPOSITORY }}/iris-api:${{ github.sha }}
+
+    - uses: google-github-actions/get-gke-credentials@v2
+      with:
+        cluster_name: ${{ secrets.GKE_CLUSTER }}
+        location: ${{ secrets.GKE_ZONE }}
+
+    - name: Update Deployment Image
+      run: |
+        sed -i "s|IMAGE_TAG|${{ github.sha }}|g" k8s/deployment.yaml
+
+    - name: Deploy Kubernetes Resources
+      run: |
+        kubectl apply -f k8s/
+
+    - run: kubectl get all
+
+    - name: Wait for deployment rollout
+      run: |
+        kubectl rollout status deployment/iris-api --timeout=300s
+
+    - name: Wait for External IP
+      run: |
+        for i in {1..30}; do
+          IP=$(kubectl get svc iris-api \
+            -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+
+          if [ -n "$IP" ]; then
+            echo "API_IP=$IP" >> $GITHUB_ENV
+            echo "External IP: $IP"
+            exit 0
+          fi
+
+          echo "Waiting for LoadBalancer IP..."
+          sleep 10
+        done
+
+        echo "Timed out waiting for External IP"
+        exit 1
+
+    - name: Install wrk
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wrk
+
+    - name: Run Stress Test
+      run: |
+        wrk -t4 -c1000 -d30s -s scripts/post.lua http://$API_IP/predict
+
